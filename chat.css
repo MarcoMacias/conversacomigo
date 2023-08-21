@@ -193,6 +193,7 @@ main {
 }
 
 .esquerdaConversa {
+    width: 90%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -253,10 +254,6 @@ main {
     cursor: pointer;
 }
 
-.container {
-    max-width: 100vw!important;
-}
-
 @media screen and (max-width: 600px) {
     aside {
         display: none;
@@ -282,4 +279,7 @@ main {
         font-size: 10px;
     }
 }
+
+
+
 
