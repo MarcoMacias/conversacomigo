@@ -193,6 +193,7 @@ main {
 }
 
 .esquerdaConversa {
+    width: 90%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -217,6 +218,7 @@ main {
     flex-direction: column;
     align-items: end;
     justify-content: end;
+    margin-right: 10px;
 }
 
 
@@ -286,4 +288,7 @@ main {
         font-size: 10px;
     }
 }
+
+
+
 
