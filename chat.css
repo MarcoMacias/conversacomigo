@@ -144,7 +144,7 @@ main {
 .segundoContainer {
     display: flex;
     flex-direction: column;
-    /*justify-content: space-between;*/
+    justify-content: space-between;
     width: 100%;
     height: 40%;
 }
@@ -276,6 +276,8 @@ main {
         height: 40px;
         margin-top: 20px;
     }
+
+    #containerInput {position: absolute;bottom: 0;}
 
 }
 
