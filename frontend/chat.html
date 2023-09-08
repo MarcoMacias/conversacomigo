@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <link rel="stylesheet" href="chat.css">
+  <title>ConversaComigo</title>
+</head>
+
+<body>
+    <aside>
+      <div class="suporteText">
+        <p>Para <span class="spanText"> suporte </span> contate: <br>
+          contato@conversacomigo.com</p>
+      </div>
+
+      <button class="buttonPular">
+        Próximo
+      </button>
+    </aside>
+
+
+
+
+    <main>
+      <div class="textoPrincipal">
+        <h1 id="conversaComigoText" class="textosMudar">ConversaComigo</h1>
+        <p id="paragrafo">Converse sem cadastro</p>
+        <button class="botaoMudar">PRÓXIMO</button>
+      </div>
+
+
+
+
+
+      <div class="segundoContainer">
+
+        <div class="containerConversa">
+          <div class="containerTextUm">
+            <div class="bolhaConversa" id="bolha1">
+              <div class="esquerdaConversa">
+                <p class="textosMudar">Oii tudo bem? Pode me responder uma dúvida?</p>
+              </div>
+
+              <div class="direitaConversa">
+                <span>00:00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="containerTextDois">
+            <div class="bolhaConversa" id="bolha2">
+              <div class="esquerdaConversa">
+                <p class="textosMudar">Oii, sim, pode falar meu amor. Estou aqui para você?</p>
+              </div>
+
+              <div class="direitaConversa">
+                <span>00:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="container mt-5"
+          style="background-color: #1B1C21; display: flex; align-items: center; justify-content: center; height: 43px;"
+          id="containerInput">
+          <div class="input-group">
+            <input id="inputText" type="text" class="form-control" placeholder="Escreva sua mensagem aqui"
+              style="border-radius: 12px;">
+            <img class="sendB" src="imagens\sendB.svg" alt="Botão de enviar mensagem.">
+            <div class="emojis">
+              <img src="imagens/emoji.svg" alt="emoji">
+              <img src="imagens/mic.svg" alt="mic">
+            </div>
+          </div>
+        </div>
+    </main>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+  <script>
+    const connect = document.getElementById("connect");
+    const uf = document.getElementById("uf");
+    const gender = document.getElementById("gender");
+    const info = document.getElementById("info");
+    const boxChannel = document.getElementById("box");
+
+
+    let socket = io("http://localhost:7777/master");
+
+
+    connect.addEventListener("click", () => {
+      info.innerHTML = "Buscando Amigo";
+
+      socket.emit("onClientSearch", {
+        uf: uf.value,
+        gender: gender.value
+      })
+    });
+
+    function sendNewMessage(message) {
+      socket.emit("onClientSendMessage", message);
+    }
+
+    sendMessage.addEventListener("click", () => {
+      sendNewMessage(myMessage.value);
+    });
+
+
+    findNewFriend.addEventListener("click", () => {
+      info.innerHTML = "Buscando Amigo";
+
+      socket.emit("onClientSearch", {
+        uf: uf.value,
+        gender: gender.value
+      })
+    })
+
+
+
+
+    socket.on("onServerNotifyCreate", (users) => {
+      const talkingWith = users.find(user => user.id !== socket.id)
+      info.innerHTML = "Conversando com: " + talkingWith.id;
+    });
+    /*
+      socket.on("onRoomReceiveMessage", (data) => {
+        const date = new Date(data.date).toTimeString().slice(0,8)
+        messages.innerHTML += `<h5>[${date}] ${data.user}: ${data.message}</h5>`;
+      });
+    */
+
+    socket.on("onServerRoomClose", () => {
+      info.innerHTML = "Aguardando";
+
+      socket.emit("onClientSearch", {
+        uf: uf.value,
+        gender: gender.value
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>

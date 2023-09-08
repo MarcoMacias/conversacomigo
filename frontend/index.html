@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConversaComigo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="chat.css">
+</head>
+
+<body>
+    <div id="homePage" class="homePage">
+        <header>
+            <nav>
+                <h1>ConversaComigo</h1>
+                <p>Converse sem cadastro</p>
+            </nav>
+        </header>
+
+        <main>
+            <section class="containerText">
+                <h1>Comece a falar com uma pessoa <br>
+                    aleatória em apenas um clique</h1>
+                <p>Escolha o estado e o sexo da pessoa com quem deseja <br>
+                    conversar e comece a falar anonimamente!</p>
+            </section>
+
+            <section class="containerSelects">
+                <div class="selectLabel">
+                    <p>Escolha o sexo:</p>
+                    <select id="gender" class="form-control" style="width: 250px; height: 40px;">
+                        <option>Masculino</option>
+                        <option>Feminino</option>
+                    </select>
+                </div>
+                <div class="selectLabel">
+                    <p>Escolha o estado:</p>
+                    <select class="form-control" style="width: 250px; height: 40px;" name="estado" id="estado">
+                        <option value="AC">Acre</option>
+                        <option value="AL">Alagoas</option>
+                        <option value="AP">Amapá</option>
+                        <option value="AM">Amazonas</option>
+                        <option value="BA">Bahia</option>
+                        <option value="CE">Ceará</option>
+                        <option value="DF">Distrito Federal</option>
+                        <option value="ES">Espírito Santo</option>
+                        <option value="GO">Goiás</option>
+                        <option value="MA">Maranhão</option>
+                        <option value="MT">Mato Grosso</option>
+                        <option value="MS">Mato Grosso do Sul</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="PA">Pará</option>
+                        <option value="PB">Paraíba</option>
+                        <option value="PR">Paraná</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="PI">Piauí</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="RN">Rio Grande do Norte</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="RO">Rondônia</option>
+                        <option value="RR">Roraima</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="SE">Sergipe</option>
+                        <option value="TO">Tocantins</option>
+                    </select>
+                </div>
+            </section>
+
+            <div id="connect" class="containerButton">
+                <a><button class="botaoFoda">COMECE A CONVERSAR</button></a>
+            </div>
+        </main>
+    </div>
+
+    <div id="chatPage" class="chatPage">
+        <aside>
+            <div class="suporteText">
+                <p>Para <span class="spanText"> suporte </span> contate: <br>
+                    contato@conversacomigo.com</p>
+            </div>
+            <p style="text-align: center; font-size: 15px;" id="info"></p>
+
+            <button id="findNewFriend" class="buttonPular">
+                Próximo
+            </button>
+        </aside>
+
+        <main>
+            <div class="textoPrincipal">
+                <h1 id="conversaComigoText" class="textosMudar">ConversaComigo</h1>
+                <p id="paragrafo">Converse sem cadastro</p>
+                <button id="findNewFriend" class="botaoMudar">PRÓXIMO</button>
+            </div>
+
+            <div id="messages" class="containerConversa">
+
+            </div>
+
+            <div class="segundoContainer">
+                <div class="container mt-5"
+                    style="background-color: #1B1C21; display: flex; align-items: center; justify-content: center; height: 43px;"
+                    id="containerInput">
+                    <div class="input-group">
+                        <input id="message" type="text" class="form-control" placeholder="Escreva sua mensagem aqui"
+                            style="border-radius: 12px;">
+                        <img id="send" class="sendB" src="imagens\sendB.svg" alt="Botão de enviar mensagem.">
+                        <div class="emojis">
+                            <img src="imagens/emoji.svg" alt="emoji">
+                            <img src="imagens/mic.svg" alt="mic">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<script>
+    const connect = document.getElementById("connect");
+    const uf = document.getElementById("estado");
+    const gender = document.getElementById("gender");
+    const info = document.getElementById("info");
+    const containerText = document.getElementById("containerText")
+
+    const sendMessage = document.getElementById("send");
+    const findNewFriend = document.getElementById("findNewFriend");
+    const messages = document.getElementById("messages");
+    const myMessage = document.getElementById("message");
+
+    const chatPage = document.getElementById("chatPage");
+    const homePage = document.getElementById("homePage");
+
+    let socket = io("http://localhost:7777/master");
+
+    connect.addEventListener("click", () => {
+        info.innerHTML = "Buscando Estranho";
+        homePage.style.display = "none";
+        chatPage.style.display = "flex";
+
+        socket.emit("onClientSearch", {
+            uf: uf.value,
+            gender: gender.value
+        });
+    });
+
+    function sendNewMessage(message) {
+        socket.emit("onClientSendMessage", message);
+    }
+
+    sendMessage.addEventListener("click", () => {
+        sendNewMessage(myMessage.value);
+    });
+
+    findNewFriend.addEventListener("click", () => {
+        info.innerHTML = "Buscando Amigo";
+
+        socket.emit("onClientSearch", {
+            uf: uf.value,
+            gender: gender.value
+        });
+    });
+
+    let stranger = 0;
+    let me = 0;
+
+    socket.on("onServerNotifyCreate", (users) => {
+        const talkingWith = users.find(user => user.id !== socket.id);
+        const yourId = users.find(user => user.id === socket.id);
+        console.log(talkingWith);
+        console.log(yourId);
+
+        stranger = talkingWith;
+        me = yourId;
+
+        info.innerHTML = "Você se conectou com um estranho, comece a conversar.";
+    });
+
+    socket.on("onRoomReceiveMessage", (data) => {
+        const date = new Date(data.date).toTimeString().slice(0, 8);
+
+        const sender = data.user === socket.id ?
+            messages.innerHTML +=
+            ` <div class="containerTextDois">
+                    <div class="bolhaConversa" id="bolha2">
+                        <div class="esquerdaConversa">
+                            <p class="${data.user === socket.id ? 'nomenclaturaEu' : 'nomenclaturaOutro'}">${data.user === socket.id ? 'Você:' : 'Estranho:'}</p>
+                            <p class="textosMudar">${data.message}</p>
+                        </div>
+
+                        <div class="direitaConversa">
+                            <span>${date}</span>
+                        </div>
+                    </div>
+                </div> `
+            :
+            messages.innerHTML +=
+            `<div class="containerTextUm">
+                    <div class="bolhaConversa" id="bolha1">
+                        <div class="esquerdaConversa">
+                            <p class="${data.user === socket.id ? 'nomenclaturaEu' : 'nomenclaturaOutro'}">${data.user === socket.id ? 'Você:' : 'Estranho:'}</p>
+                            <p class="textosMudar">${data.message}</p>
+                        </div>
+
+                        <div class="direitaConversa">
+                            <span>${date}</span>
+                        </div>
+                    </div>
+                </div> `
+    });
+
+    socket.on("onServerRoomClose", () => {
+        info.innerHTML = "Aguardando";
+
+        socket.emit("onClientSearch", {
+            uf: uf.value,
+            gender: gender.value
+        });
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+</html>
