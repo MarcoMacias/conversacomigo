@@ -17,76 +17,25 @@
         </header>
 
         <main>
-            <div class="esquerdaMain">
+            <div id="esquerdaMain" class="esquerdaMain">
                 <div class="containerTextUser">
                     <h1>Visualize os usuários ativos:</h1>
                 </div>
 
                 <div class="textUsers">
                     <p class="textUsers1">@ID</p>
-                    <p class="textUsers2">ENTROU:</p>
                     <p class="textUsers3">CONVERSANDO?</p>
                     <p class="textUsers4">BANIDO?</p>
                 </div>
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
+
+                <div id="users" class="users">
+
                 </div>
 
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
-
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
-
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
-
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
-
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
-
-                <div class="containerUser">
-                    <p class="text">@ID</p>
-                    <p class="text">133 dias atras</p>
-                    <p class="text">SIM</p>
-                    <p class="text">NÃO</p>
-                    <button class="buttonGerenciar">GERENCIAR</button>
-                </div>
             </div>
 
             <div class="direitaMain">
-                <div class="containerUserInfo">
+                <div id="containerUserInfo" class="containerUserInfo">
                     <div class="infosUser">
                         <div class="containerInfos">
                             <h1>INFORMAÇÕES DA CONTA:</h1>
@@ -94,10 +43,10 @@
                             <div class="infosUserDois">
                                 <div class="infosUm">
                                     <div class="infosDivsUm">
-                                        <p>ID: <span>10101010</span></p>
+                                        <p>ID: <span>UNKNOWN</span></p>
                                     </div>
                                     <div class="infosDivsDois">
-                                        <p>Entrou a: <span>133 dias atrás</span></p>
+                                        <p>ID SALA: <span>UNKNOWN</span></p>
                                     </div>
 
                                 </div>
@@ -119,8 +68,247 @@
                         <button class="verButton">VER CONVERSA</button>
                     </div>
                 </div>
+
+                <div id="containerMessages" class="containerMessages"></div>
             </div>
         </main>
     </body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+
+        let esquerdaMain = document.getElementById("esquerdaMain");
+        let socket = io("http://localhost:7777/master");
+
+        document.addEventListener("DOMContentLoaded", () => {
+            obterSalasAtivas();
+        });
+
+        async function obterSalasAtivas() {
+            try {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    alert("Você não está autenticado. Faça o login primeiro.");
+                    return;
+                }
+
+                const api = axios.create({
+                    baseURL: 'http://localhost:7777/',
+                    timeout: 10000,
+                });
+
+                api.defaults.headers.common['x-access-token'] = token;
+
+                const response = await api.get("/admin/rooms");
+
+                const salasAtivas = response.data;
+                console.log(salasAtivas.body.Rooms)
+                const salasAtivasDiv = document.getElementById("esquerdaMain");
+                const userAtivoDiv = document.getElementById("users");
+
+                if (salasAtivas.body.Rooms.length === 0) {
+                    salasAtivasDiv.innerHTML = `<p style="color:white;">Nenhuma sala ativa encontrada.</p>`;
+                } else {
+                    salasAtivas.body.Rooms.forEach((sala) => {
+                        sala.Users.forEach((usuario) => {
+                            console.log(sala.id)
+                            const salaDiv = document.createElement("div");
+                            salaDiv.innerHTML = `
+                        <div class="containerUser">
+                        <p class="text">${usuario.id}</p>
+                        <p class="text">SIM</p>
+                        <p class="text">NÃO</p>
+                        <button class="buttonGerenciar" data-user-id="${usuario.id}" data-room-id="${sala.id}">GERENCIAR</button>
+                        </div>
+                    `;
+                            userAtivoDiv.appendChild(salaDiv);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao obter salas ativas:", error);
+            }
+        }
+
+
+        document.addEventListener("click", (event) => {
+            if (event.target.classList.contains("buttonGerenciar")) {
+                const userId = event.target.getAttribute("data-user-id");
+                const salaId = event.target.getAttribute("data-room-id");
+                const userDetailsContainer = document.getElementById("containerUserInfo");
+                userDetailsContainer.innerHTML = `
+
+                <div class="infosUser">
+                        <div class="containerInfos">
+                            <h1>INFORMAÇÕES DA CONTA:</h1>
+
+                            <div class="infosUserDois">
+                                <div class="infosUm">
+                                    <div class="infosDivsUm">
+                                        <p>ID: <span>${userId}</span></p>
+                                    </div>
+                                    <div class="infosDivsDois">
+                                        <p>Entrou a: <span>${salaId}</span></p>
+                                    </div>
+
+                                </div>
+                                <div class="infosDois">
+                                    <div class="infosDivsUm">
+                                        <p>Conversando? <span>SIM</span></p>
+                                    </div>
+                                    <div class="infosDivsDois">
+                                        <p>Banido? <span>NÃO</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="buttonsUser">
+                        <button class="banirButton" data-user-id="${userId}" data-room-id="${salaId}" id="banirButton-${userId}">BANIR</button>
+                        <button class="verButton" data-user-id="${userId}" data-room-id="${salaId}">VER CONVERSA</button>
+                    </div>
+                `;
+            }
+        });
+
+
+
+        // Função para obter as mensagens da sala de um usuário
+        async function obterMensagensDaSala(roomId, tokenJWT, userId, callback) {
+            try {
+                const api = axios.create({
+                    baseURL: 'http://localhost:7777/',
+                    timeout: 10000,
+                });
+
+                const response = await api.get(`/admin/rooms/${roomId}/messages`, {
+                    headers: {
+                        'x-access-token': tokenJWT,
+                    },
+                });
+
+                const mensagens = response.data.body.messages;
+                console.log("Mensagens na sala do usuário com ID", userId, ":", mensagens);
+
+                if (callback && typeof callback === 'function') {
+                    callback(null, mensagens); // Chame o callback com as mensagens
+                }
+            } catch (error) {
+                console.error('Erro ao obter mensagens da sala:', error);
+                if (callback && typeof callback === 'function') {
+                    callback(error, null); // Chame o callback com erro
+                }
+            }
+        }
+
+        // Manipulador de eventos para o botão "VER CONVERSA"
+        document.addEventListener("click", async (event) => {
+            if (event.target.classList.contains("verButton")) {
+                const userId = event.target.getAttribute("data-user-id");
+                const roomId = event.target.getAttribute("data-room-id");
+
+                if (roomId) {
+                    const tokenJWT = localStorage.getItem('token');
+
+                    // Chame a função para obter as mensagens da sala do usuário com um callback
+                    obterMensagensDaSala(roomId, tokenJWT, userId, (error, mensagens) => {
+                        if (error) {
+                            console.error('Erro ao obter mensagens:', error);
+                            // Trate o erro aqui, se necessário
+                        } else {
+                            // Aqui você pode usar as mensagens obtidas, por exemplo, exibindo-as na interface
+                            console.log('Mensagens obtidas com sucesso:', mensagens);
+                        }
+                    });
+                } else {
+                    console.error("ID da sala não encontrado.");
+                }
+            }
+        });
+
+
+
+        document.addEventListener("click", async (event) => {
+            if (event.target.classList.contains("banirButton")) {
+                const userId = event.target.getAttribute("data-user-id");
+                const tokenJWT = localStorage.getItem('token');
+
+                if (!tokenJWT) {
+                    alert("Você não está autenticado. Faça o login primeiro.");
+                    return;
+                }
+
+                try {
+                    const api = axios.create({
+                        baseURL: 'http://localhost:7777/',
+                        timeout: 10000,
+                    });
+
+                    const headers = {
+                        'x-access-token': tokenJWT,
+                    };
+
+                    const response = await api.put(`/admin/users/${userId}/ban`, {}, { headers });
+
+                    if (response.status === 200) {
+                        console.log(`Usuário com ID ${userId} foi banido com sucesso.`);
+                    } else {
+                        console.error(`Erro ao banir o usuário com ID ${userId}:`, response.statusText);
+                    }
+                } catch (error) {
+                    console.error(`Erro ao banir o usuário com ID ${userId}:`, error);
+                }
+            }
+        });
+
+        socket.on('userBanned', (userId) => {
+            console.log(`Usuário com ID ${userId} foi banido pelo servidor.`);
+        });
+
+        async function obterMensagensDaSala(roomId, tokenJWT, userId) {
+                let containerMessages = document.getElementById("containerMessages")
+                let pMensagem = document.createElement("p")
+
+            try {
+                const api = axios.create({
+                    baseURL: 'http://localhost:7777/',
+                    timeout: 10000,
+                });
+
+                const response = await api.get(`/admin/rooms/${roomId}/messages`, {
+                    headers: {
+                        'x-access-token': tokenJWT,
+                    },
+                });
+
+                const mensagens = response.data.body.messages;
+                console.log("ass", mensagens.body);
+
+                if (mensagens.length === 0) {
+                    console.log(`Não há mensagens na sala do usuário com ID: ${userId}`);
+                } else {
+                    console.log(`Mensagens na sala do usuário com ID ${userId}:`);
+                    mensagens.forEach((mensagem) => {
+                        console.log(mensagem);                
+                        pMensagem.innerHTML += `[${mensagem.user}]: ${mensagem.message}<br>`
+                        containerMessages.appendChild(pMensagem)
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao obter mensagens da sala:', error);
+            }
+        }
+
+
+        socket.on('onUserGotBanned', () => {
+            console.log("user banido")
+        });
+
+    </script>
 
 </html>

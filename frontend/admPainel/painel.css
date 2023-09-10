@@ -71,6 +71,12 @@ main {
     padding: 10px;
 }
 
+.users {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
 .text {
     font-family: 'Inter', sans-serif;
     font-size: 10px;
@@ -129,8 +135,17 @@ main {
     width: 450px;
     height: 230px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.containerMessages {
+    display: flex;
+    flex-direction: column;
+    height: 104px;
+
+    color: white;
 }
 
 

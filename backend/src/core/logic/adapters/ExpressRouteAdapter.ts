@@ -1,5 +1,12 @@
-import { Request, Response } from 'express'
-import { Controller } from '@core/logic/Controller'
+/*****************************************************************************
+ *
+ *  PROJECT:     Conversa Comigo
+ *  LICENSE:     See LICENSE in the top level directory
+ *  AUTHOR:      Vítor Ribeiro (flashii) Powered by: https://varsel.com.br
+ *
+ *****************************************************************************/
+import { Request, Response } from "express";
+import { Controller } from "@core/logic/Controller";
 
 export const adaptRoute = (controller: Controller) => {
   return async (request: Request, response: Response) => {
@@ -9,16 +16,16 @@ export const adaptRoute = (controller: Controller) => {
       ...request.query,
       ...request.headers,
       user: request.user,
-    }
+    };
 
-    const httpResponse = await controller.handle(requestData)
+    const httpResponse = await controller.handle(requestData);
 
     if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
-      return response.status(httpResponse.statusCode).json(httpResponse)
+      return response.status(httpResponse.statusCode).json(httpResponse);
     } else {
       return response
         .status(httpResponse.statusCode)
-        .json(httpResponse.body.error)
+        .json(httpResponse.body.error);
     }
-  }
-}
+  };
+};

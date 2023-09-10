@@ -17,14 +17,17 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@modules/*": ["./src/modules/*"],
-      "@infra/*": ["./src/infra/*"],
-      "@core/*": ["./src/core/*"],
-    },
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@infra/*": [
+        "./src/infra/*"
+      ],
+      "@core/*": [
+        "./src/core/*"
+      ]
+    }
   },
-  "exclude": [
-    "node_modules"
-  ],
   "include": [
     "src/**/*"
   ]

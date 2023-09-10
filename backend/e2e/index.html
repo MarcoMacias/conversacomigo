@@ -1,98 +1,107 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-</head>
-<body>
-  <h1 id="info">Aguardando</h1>
+  <head> </head>
+  <body>
+    <h1 id="info">Aguardando</h1>
 
-  <select name="gender" id="gender">
-    <option value="masculine" selected>Masculino</option>
-    <option value="feminine">Feminino</option>
-  </select>
+    <select name="gender" id="gender">
+      <option value="masculine" selected>Masculino</option>
+      <option value="feminine">Feminino</option>
+    </select>
 
-  <select name="uf" id="uf">
-    <option value="rs" selected>Rio Grande</option>
-    <option value="sp">São Paulo</option>
-  </select>
-  
-  <button id="connect">Connectar</button>
+    <select name="uf" id="uf">
+      <option value="rs" selected>Rio Grande</option>
+      <option value="sp">São Paulo</option>
+    </select>
 
+    <button id="connect">Connectar</button>
 
-  <div id="box">
-    <h3>Mensagens:</h3>
-    <div id="messages"></div>
-    <input type="text" id="message">
-    <br>
-    <br>
-    <button id="send">Enviar</button>
-    <button id="findNewFriend">Encontrar Novo amigo</button>
-  </div>
-</body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-<script>
-  const connect = document.getElementById("connect");
-  const uf = document.getElementById("uf");
-  const gender = document.getElementById("gender");
-  const info = document.getElementById("info");
-  const boxChannel = document.getElementById("box");
+    <div id="box">
+      <h3>Mensagens:</h3>
+      <div id="messages"></div>
+      <input type="text" id="message" />
+      <br />
+      <br />
+      <button id="send">Enviar</button>
+      <button id="findNewFriend">Encontrar Novo amigo</button>
+    </div>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+  <script>
+    const connect = document.getElementById('connect');
+    const uf = document.getElementById('uf');
+    const gender = document.getElementById('gender');
+    const info = document.getElementById('info');
+    const boxChannel = document.getElementById('box');
 
-  // Box
-  const messages = document.getElementById("messages");
-  const myMessage = document.getElementById("message");
-  const sendMessage = document.getElementById("send");
-  const findNewFriend = document.getElementById("findNewFriend");
+    // Box
+    const messages = document.getElementById('messages');
+    const myMessage = document.getElementById('message');
+    const sendMessage = document.getElementById('send');
+    const findNewFriend = document.getElementById('findNewFriend');
 
-  let socket = io("http://localhost:7777/master");
+    let socket = io('http://localhost:7777/master');
 
+    connect.addEventListener('click', () => {
+      socket.emit(
+        'onClientSearch',
+        {
+          uf: uf.value,
+          gender: gender.value,
+        },
+        banned => {
+          if (banned)
+            return alert(
+              "You're not allowed to search. Because you banned from this server.",
+            );
 
-  connect.addEventListener("click", () => {
-    info.innerHTML = "Buscando Amigo";
+          info.innerHTML = 'Buscando Amigo';
+        },
+      );
+    });
 
-    socket.emit("onClientSearch", {
-      uf: uf.value,
-      gender: gender.value
-    })
-  });
+    function sendNewMessage(message) {
+      socket.emit('onClientSendMessage', message);
+    }
 
-  function sendNewMessage(message) {
-    socket.emit("onClientSendMessage", message);
-  }
-  
-  sendMessage.addEventListener("click", () => {
-    sendNewMessage(myMessage.value);
-  });
+    sendMessage.addEventListener('click', () => {
+      sendNewMessage(myMessage.value);
+    });
 
+    findNewFriend.addEventListener('click', () => {
+      socket.emit(
+        'onClientSearch',
+        {
+          uf: uf.value,
+          gender: gender.value,
+        },
+        banned => {
+          if (banned)
+            return alert(
+              "You're not allowed to search. Because you banned from this server.",
+            );
 
-  findNewFriend.addEventListener("click", () => {
-    info.innerHTML = "Buscando Amigo";
+          info.innerHTML = 'Buscando Amigo';
+        },
+      );
+    });
 
-    socket.emit("onClientSearch", {
-      uf: uf.value,
-      gender: gender.value
-    })
-  })
+    socket.on('onServerNotifyCreate', users => {
+      const talkingWith = users.find(user => user.id !== socket.id);
+      info.innerHTML = 'Conversando com: ' + talkingWith.id;
+    });
 
+    socket.on('onRoomReceiveMessage', data => {
+      const date = new Date(data.date).toTimeString().slice(0, 8);
+      messages.innerHTML += `<h5>[${date}] ${data.user}: ${data.message}</h5>`;
+    });
 
-  
-  
-  socket.on("onServerNotifyCreate", (users) => {
-    const talkingWith = users.find(user => user.id !== socket.id)
-    info.innerHTML = "Conversando com: " + talkingWith.id;
-  });
+    socket.on('onServerRoomClose', () => {
+      info.innerHTML = 'Sala fechada, clique para buscar um novo parceiro.';
+    });
 
-  socket.on("onRoomReceiveMessage", (data) => {
-    const date = new Date(data.date).toTimeString().slice(0,8)
-    messages.innerHTML += `<h5>[${date}] ${data.user}: ${data.message}</h5>`;
-  });
-
-
-  socket.on("onServerRoomClose", () => {
-    info.innerHTML = "Aguardando";
-    
-    socket.emit("onClientSearch", {
-      uf: uf.value,
-      gender: gender.value
-    })
-  });
-</script>
+    socket.on('onUserGotBanned', () =>
+      alert("You're has been banned from this server."),
+    );
+  </script>
 </html>

@@ -7,6 +7,15 @@
 
 ```javascript
 socket.emit("onClientSearch", { uf: string, gender: string })
+
+// Nova Sintaxe para verificar banimento.
+socket.emit("onClientSearch", { uf: string, gender: string }, (iamBanned) => {
+  if (iamBanned) {
+    alert("Você não pode procurar parceiros pois foi banido do servidor.")
+  } else {
+    console.log("Buscando um parceiro");
+  }
+})
 ```
 
 #### Events/"onClientSendMessage"
@@ -57,6 +66,14 @@ socket.on("onServerRoomClose", () => {
 });
 ```
 
+#### Events/"onGotBanned"
+> Este evento é disparado no exato momento que um super usuário efetua a ação de banimento. Ela é enviada a <b>SOMENTE</b> o usuário que for banido. Então você poderá manipular qual ação o front-end deve tomar.
+```javascript
+socket.on("onServerRoomClose", () => {
+  window.location.reload() // Recarrega a página (eliminando assim o usuário restante na sala)
+});
+```
 
 
+<br>
 Você pode ver uma POC do sistema (Simplificado) em: <b>e2e/index.html</b>

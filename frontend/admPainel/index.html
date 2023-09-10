@@ -24,22 +24,61 @@
             <div class="inputs">
                 <div class="inputLabel">
                     <label for="user">Usuário:</label>
-                    <input type="text" name="user" required>
+                    <input id="userAdm" type="text" name="user" required>
                 </div>
 
                 <div class="inputLabel">
                     <label for="senha">Senha:</label>
-                    <input type="password" name="senha" required>
+                    <input id="passAdm" type="password" name="senha" required>
                 </div>
             </div>
 
             <div class="divButton">
-               <a href="painel.html" ></a> <button>ENTRAR</button>
+                <a href="painel.html"></a> <button id="botao">ENTRAR</button>
             </div>
 
         </form>
 
     </main>
 </body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    let userAdm = document.getElementById("userAdm");
+    let passAdm = document.getElementById("passAdm");
+    let socket = io("http://localhost:7777/master");
+    let loginButton = document.getElementById("botao");
+
+    const api = axios.create({
+        baseURL: 'http://localhost:7777/', 
+        timeout: 10000,
+    });
+
+    async function autenticarUsuario() {
+        try {
+            const response = await api.get("/admin/auth", {
+                auth: {
+                    username: userAdm.value,
+                    password: passAdm.value, 
+                },
+            });
+
+            const token = response.data.body.token;
+            console.log(token)
+
+            localStorage.setItem('token', token);
+
+            console.log("Autenticação bem-sucedida. Token salvo no localStorage:", token);
+
+            window.location.href = "painel.html";
+        } catch (error) {
+            console.error("Erro ao autenticar usuário:", error);
+        }
+    }
+    loginButton.addEventListener("click", autenticarUsuario);
+
+</script>
 
 </html>

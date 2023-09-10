@@ -1,20 +1,27 @@
+/*****************************************************************************
+ *
+ *  PROJECT:     Conversa Comigo
+ *  LICENSE:     See LICENSE in the top level directory
+ *  AUTHOR:      Vítor Ribeiro (flashii) Powered by: https://varsel.com.br
+ *
+ *****************************************************************************/
 export type HttpResponse = {
-  statusCode: number
-  body: any
-}
+  statusCode: number;
+  body: any;
+};
 
 export function ok<T>(dto?: T): HttpResponse {
   return {
     statusCode: 200,
     body: dto,
-  }
+  };
 }
 
 export function created(): HttpResponse {
   return {
     statusCode: 201,
     body: undefined,
-  }
+  };
 }
 
 export function clientError(error: Error): HttpResponse {
@@ -23,7 +30,7 @@ export function clientError(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function unauthorized(error: Error): HttpResponse {
@@ -32,7 +39,7 @@ export function unauthorized(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function forbidden(error: Error): HttpResponse {
@@ -41,7 +48,7 @@ export function forbidden(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function notFound(error: Error): HttpResponse {
@@ -50,7 +57,7 @@ export function notFound(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function conflict(error: Error): HttpResponse {
@@ -59,7 +66,7 @@ export function conflict(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function tooMany(error: Error): HttpResponse {
@@ -68,15 +75,15 @@ export function tooMany(error: Error): HttpResponse {
     body: {
       error: error.message,
     },
-  }
+  };
 }
 
 export function fail(error: Error) {
-  console.log(error.message)
+  console.log(error.message);
   return {
     statusCode: 500,
     body: {
       error: error.message,
     },
-  }
+  };
 }
